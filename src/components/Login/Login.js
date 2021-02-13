@@ -8,32 +8,32 @@ import {
   FormGroup,
   FormLabel,
   TextField,
-  Typography,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-import styles from "./Register.module.scss";
+import styles from "./Login.module.scss";
 import { useAuth } from "../../contexts/AuthContext";
 
-export const Register = () => {
-  const { register } = useAuth();
+export const Login = () => {
+  const { login } = useAuth();
   const emailRef = useRef();
   const passwordRef = useRef();
-  const repeatPasswordRef = useRef();
   const [email, setEmail] = useState(``);
   const [password, setPassword] = useState(``);
-  const [repeatPassword, setRepeatPassword] = useState(``);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [dirty, setDirty] = useState();
+  const history = useHistory();
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
 
-      await register(email, password);
+      await login(email, password);
+
+      history.push("/");
     } catch (error) {
       setErrors({
         ...errors,
@@ -55,30 +55,16 @@ export const Register = () => {
       hasErrors = { ...hasErrors, password: "Password is required" };
     }
 
-    if (!repeatPassword) {
-      hasErrors = {
-        ...hasErrors,
-        repeatPassword: "Repeat Password is required",
-      };
-    }
-
-    if (password !== repeatPassword) {
-      hasErrors = {
-        ...hasErrors,
-        repeatPassword: "Password and Repeat Password must match",
-      };
-    }
-
     if (hasErrors) {
       setErrors(hasErrors);
     }
-  }, [email, password, repeatPassword]);
+  }, [email, password]);
 
   return (
-    <Box className={styles.Register} data-testid="Register">
+    <Box className={styles.Login} data-testid="Login">
       <Container maxWidth="sm">
         <Card variant="outlined">
-          <CardHeader title="Register"></CardHeader>
+          <CardHeader title="Login"></CardHeader>
           <CardContent>
             {errors.error && <Alert severity="error">{errors.error}</Alert>}
             <form>
@@ -111,22 +97,6 @@ export const Register = () => {
                   <Alert severity="error">{errors.password}</Alert>
                 )}
               </FormGroup>
-              <FormGroup>
-                <FormLabel>Repeat Password</FormLabel>
-                <TextField
-                  ref={repeatPasswordRef}
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                  onBlur={() =>
-                    setDirty((prev) => ({ ...prev, repeatPassword: true }))
-                  }
-                  type="password"
-                  required
-                />
-                {dirty && dirty.repeatPassword && errors.repeatPassword && (
-                  <Alert severity="error">{errors.repeatPassword}</Alert>
-                )}
-              </FormGroup>
               <Button
                 variant="contained"
                 color="primary"
@@ -135,11 +105,8 @@ export const Register = () => {
                   (Object.keys(errors).length > 0 && !errors.error) || loading
                 }
               >
-                {!loading ? "Register" : "loading..."}
+                {!loading ? "Login" : "loading..."}
               </Button>
-              <Typography>
-                Already have an account? <Link to="/login">Log In</Link>
-              </Typography>
             </form>
           </CardContent>
         </Card>

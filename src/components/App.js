@@ -1,9 +1,10 @@
 import { AuthProvider } from "../contexts/AuthContext";
-import { Register } from "./Register/Register";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import "./App.scss";
 import { Dashboard } from "./Dashboard/Dashboard";
+import { Register } from "./Register/Register";
+import { Login } from "./Login/Login";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <AuthProvider>
         <Switch>
           <Route exact path="/" component={Dashboard} />
+          <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
         </Switch>
       </AuthProvider>
