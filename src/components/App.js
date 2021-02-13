@@ -5,13 +5,14 @@ import "./App.scss";
 import { Dashboard } from "./Dashboard/Dashboard";
 import { Register } from "./Register/Register";
 import { Login } from "./Login/Login";
+import { ProtectedRoute } from "../ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Switch>
-          <Route exact path="/" component={Dashboard} />
+          <ProtectedRoute exact path="/" component={Dashboard} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
         </Switch>

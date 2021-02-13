@@ -17,7 +17,7 @@ import styles from "./Login.module.scss";
 import { useAuth } from "../../contexts/AuthContext";
 
 export const Login = () => {
-  const { login } = useAuth();
+  const { logIn } = useAuth();
   const emailRef = useRef();
   const passwordRef = useRef();
   const [email, setEmail] = useState(``);
@@ -27,17 +27,17 @@ export const Login = () => {
   const [dirty, setDirty] = useState();
   const history = useHistory();
 
-  const handleSubmit = async () => {
+  const handleLogIn = async () => {
     try {
       setLoading(true);
 
-      await login(email, password);
+      await logIn(email, password);
 
       history.push("/");
-    } catch (error) {
+    } catch (e) {
       setErrors({
         ...errors,
-        ...{ error: error.message },
+        ...{ error: e.message },
       });
     }
 
@@ -75,6 +75,7 @@ export const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => setDirty((prev) => ({ ...prev, email: true }))}
+                  type="email"
                   required
                 />
                 {dirty && dirty.email && errors.email && (
@@ -100,7 +101,7 @@ export const Login = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleSubmit}
+                onClick={handleLogIn}
                 disabled={
                   (Object.keys(errors).length > 0 && !errors.error) || loading
                 }
