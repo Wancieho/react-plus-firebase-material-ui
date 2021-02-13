@@ -30,6 +30,8 @@ export const Register = () => {
   const [dirty, setDirty] = useState();
 
   const handleSubmit = async () => {
+    setErrors({});
+
     try {
       setLoading(true);
 
