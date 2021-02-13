@@ -1,58 +1,140 @@
 import {
   Button,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
   Container,
-  FormControl,
   FormGroup,
   FormLabel,
-  Input,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { useRef } from "react";
+import Alert from "@material-ui/lab/Alert";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "../../contexts/AuthContext";
 
-export default function Register() {
+export const Register = () => {
+  const { register } = useAuth();
   const emailRef = useRef();
   const passwordRef = useRef();
   const repeatPasswordRef = useRef();
-  const { register } = useAuth();
+  const [email, setEmail] = useState(``);
+  const [password, setPassword] = useState(``);
+  const [repeatPassword, setRepeatPassword] = useState(``);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [dirty, setDirty] = useState();
 
-  const submit = () => {
-    console.debug(9);
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+      await register(email, password);
+    } catch (error) {
+      setErrors({
+        ...errors,
+        ...{ error: error.message },
+      });
+    }
+
+    setLoading(false);
   };
+
+  useEffect(() => {
+    let hasErrors = {};
+
+    if (!email) {
+      hasErrors = { ...hasErrors, email: "Email is required" };
+    }
+
+    if (!password) {
+      hasErrors = { ...hasErrors, password: "Password is required" };
+    }
+
+    if (!repeatPassword) {
+      hasErrors = {
+        ...hasErrors,
+        repeatPassword: "Repeat Password is required",
+      };
+    }
+
+    if (password !== repeatPassword) {
+      hasErrors = {
+        ...hasErrors,
+        repeatPassword: "Password and Repeat Password must match",
+      };
+    }
+
+    if (hasErrors) {
+      setErrors(hasErrors);
+    }
+  }, [email, password, repeatPassword]);
 
   return (
     <Container maxWidth="sm">
       <Card variant="outlined">
         <CardHeader title="Register"></CardHeader>
-        <form onSubmit={submit}>
-          <CardContent>
+        <CardContent>
+          {errors.error && <Alert severity="error">{errors.error}</Alert>}
+          <form>
             <FormGroup>
               <FormLabel>Email Address</FormLabel>
-              <TextField ref={emailRef} required />
+              <TextField
+                ref={emailRef}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => setDirty((prev) => ({ ...prev, email: true }))}
+                required
+              />
+              {dirty && dirty.email && errors.email && (
+                <Alert severity="error">{errors.email}</Alert>
+              )}
             </FormGroup>
             <FormGroup>
               <FormLabel>Password</FormLabel>
-              <TextField ref={passwordRef} type="password" required />
+              <TextField
+                ref={passwordRef}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => setDirty((prev) => ({ ...prev, password: true }))}
+                type="password"
+                required
+              />
+              {dirty && dirty.password && errors.password && (
+                <Alert severity="error">{errors.password}</Alert>
+              )}
             </FormGroup>
             <FormGroup>
               <FormLabel>Repeat Password</FormLabel>
-              <TextField ref={repeatPasswordRef} type="password" required />
+              <TextField
+                ref={repeatPasswordRef}
+                value={repeatPassword}
+                onChange={(e) => setRepeatPassword(e.target.value)}
+                onBlur={() =>
+                  setDirty((prev) => ({ ...prev, repeatPassword: true }))
+                }
+                type="password"
+                required
+              />
+              {dirty && dirty.repeatPassword && errors.repeatPassword && (
+                <Alert severity="error">{errors.repeatPassword}</Alert>
+              )}
             </FormGroup>
-          </CardContent>
-          <CardActions>
-            <Button variant="contained" color="primary">
-              Register
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={
+                (Object.keys(errors).length > 0 && !errors.error) || loading
+              }
+            >
+              {!loading ? "Register" : "loading..."}
             </Button>
             <Typography>Already have an account?</Typography>
-          </CardActions>
-        </form>
+          </form>
+        </CardContent>
       </Card>
     </Container>
   );
-}
+};

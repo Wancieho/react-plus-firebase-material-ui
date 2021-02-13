@@ -1,0 +1,13 @@
+$bodyBackground: lightgrey;
+
+body {
+  background: $bodyBackground;
+}
+
+.MuiInputBase-root {
+  margin-bottom: 20px;
+}
+
+.MuiAlert-root {
+  margin: -20px 0 20px 0;
+}

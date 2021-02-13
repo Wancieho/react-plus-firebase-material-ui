@@ -1,11 +1,20 @@
 import { AuthProvider } from "../contexts/AuthContext";
-import Register from "./Register/Register";
+import { Register } from "./Register/Register";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+
+import "./App.scss";
+import { Dashboard } from "./Dashboard/Dashboard";
 
 function App() {
   return (
-    <AuthProvider>
-      <Register />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Switch>
+          <Route exact path="/" component={Dashboard} />
+          <Route path="/register" component={Register} />
+        </Switch>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
