@@ -8,10 +8,11 @@ import {
   FormGroup,
   FormLabel,
   TextField,
+  Typography,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import styles from "./Login.module.scss";
 import { useAuth } from "../../contexts/AuthContext";
@@ -31,9 +32,16 @@ export const Login = () => {
     try {
       setLoading(true);
 
-      await logIn(email, password);
+      const loggedIn = await logIn(email, password);
 
-      history.push("/");
+      if (!loggedIn.user.emailVerified) {
+        setErrors({
+          ...errors,
+          ...{ error: `Your email is not verified` },
+        });
+      } else {
+        return history.push("/");
+      }
     } catch (e) {
       setErrors({
         ...errors,
@@ -109,6 +117,9 @@ export const Login = () => {
                 {!loading ? "Login" : "loading..."}
               </Button>
             </form>
+            <Typography>
+              Don't have an account? <Link to="/register">Register</Link>
+            </Typography>
           </CardContent>
         </Card>
       </Container>
