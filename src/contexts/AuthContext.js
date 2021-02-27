@@ -7,33 +7,41 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState();
-  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(true);
 
   const register = async (email, password) => {
     const create = await auth.createUserWithEmailAndPassword(email, password);
 
     if (!auth.currentUser.emailVerified) {
-      await auth.currentUser.sendEmailVerification();
+      await sendEmailVerification();
     }
 
     return create;
   };
 
-  const logIn = (email, password) => {
-    return auth.signInWithEmailAndPassword(email, password);
+  const sendEmailVerification = async () => {
+    await auth.currentUser.sendEmailVerification();
+  };
+
+  const logIn = async (email, password) => {
+    return await auth.signInWithEmailAndPassword(email, password);
   };
 
   const logOut = () => {
     auth.signOut();
   };
 
+  const refreshToken = () => {
+    return auth.currentUser.getIdToken(true);
+  };
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
 
-      setLoading(false);
+      setBusy(false);
     });
 
     return unsubscribe;
@@ -44,11 +52,12 @@ export function AuthProvider({ children }) {
     logIn,
     logOut,
     register,
+    refreshToken,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {!busy && children}
     </AuthContext.Provider>
   );
-}
+};

@@ -16,6 +16,7 @@ import { Link, useHistory } from "react-router-dom";
 
 import styles from "./Login.module.scss";
 import { useAuth } from "../../contexts/AuthContext";
+import { loginValidation } from "./Login.validation";
 
 export const Login = () => {
   const { logIn } = useAuth();
@@ -24,14 +25,14 @@ export const Login = () => {
   const [email, setEmail] = useState(``);
   const [password, setPassword] = useState(``);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [dirty, setDirty] = useState();
   const history = useHistory();
 
   const handleLogIn = async () => {
-    try {
-      setLoading(true);
+    setSubmitting(true);
 
+    try {
       const loggedIn = await logIn(email, password);
 
       if (!loggedIn.user.emailVerified) {
@@ -42,30 +43,21 @@ export const Login = () => {
       } else {
         return history.push("/");
       }
-    } catch (e) {
+    } catch (err) {
       setErrors({
         ...errors,
-        ...{ error: e.message },
+        ...{
+          error:
+            err.response?.data?.error || err.message || JSON.stringify(err),
+        },
       });
-    }
 
-    setLoading(false);
+      setSubmitting(false);
+    }
   };
 
   useEffect(() => {
-    let hasErrors = {};
-
-    if (!email) {
-      hasErrors = { ...hasErrors, email: "Email is required" };
-    }
-
-    if (!password) {
-      hasErrors = { ...hasErrors, password: "Password is required" };
-    }
-
-    if (hasErrors) {
-      setErrors(hasErrors);
-    }
+    setErrors(loginValidation(email, password) || null);
   }, [email, password]);
 
   return (
@@ -111,10 +103,11 @@ export const Login = () => {
                 color="primary"
                 onClick={handleLogIn}
                 disabled={
-                  (Object.keys(errors).length > 0 && !errors.error) || loading
+                  (Object.keys(errors).length > 0 && !errors.error) ||
+                  submitting
                 }
               >
-                {!loading ? "Login" : "loading..."}
+                {!submitting ? "Login" : "Submitting..."}
               </Button>
             </form>
             <Typography>
